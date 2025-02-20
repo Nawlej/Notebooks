@@ -3,6 +3,7 @@
 
 
 
-
+<br>
+<br>
 <h5>Binary Classification</h5>
 - A model is trained to predict if certain points on a graph are above or below a graph.
