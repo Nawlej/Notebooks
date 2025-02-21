@@ -4,4 +4,5 @@
 
 
 ## Binary Classification
-- A model is trained to predict if certain points on a graph are above or below a graph.
+- A model is trained to predict if certain points on a graph are above or below a quadratic graph.
+- Accuracy ranges from 98.00 to 100.00
