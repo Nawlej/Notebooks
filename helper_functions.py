@@ -11,39 +11,52 @@ def shuffle(input: torch.Tensor, seed: int =None):
 
 
 def plot_decision_boundaries(model: torch.nn.Module, data: torch.Tensor, labels: torch.Tensor):
-    """ Plots the decision boundary in a 2D space
+    """ Plots the decision boundary in a 2D space for classification
     """
     data = data.detach().numpy()
-    data_x = data[:, 0]
-    data_y = data[:, 1]
+    x = data[:, 0]
+    y = data[:, 1]
 
-    x_min, x_max = data_x.min() - 1, data_x.max() + 1
-    y_min, y_max = data_y.min() - 1, data_y.max() + 1
+    x_min, x_max = x.min() - 1, x.max() + 1
+    y_min, y_max = y.min() - 1, y.max() + 1
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
                          np.arange(y_min, y_max, 0.1))
 
-    # Setup grid points and predict the model's output for said grid points
+    # Predict the output for each point in the mesh grid
     grid_points = torch.tensor(np.c_[xx.ravel(), yy.ravel()], dtype=torch.float32)
-
     model.eval()
     with torch.inference_mode():
-        logits = model(grid_points).squeeze()
-
-        # check for multiclassification 
-        if len(logits.shape) > 1:
-            logits = logits.argmax(1)
-        else:
-            logits = logits.sigmoid()
-        logits = logits.reshape(xx.shape)
+        Z = model(grid_points).squeeze()
+        if y.shape[-1] > 1: 
+            Z = Z.argmax(1)
+        Z = Z.reshape(xx.shape)
         
     # Plot the decision boundary
-    plt.contourf(xx, yy, logits, cmap=plt.cm.RdYlBu, alpha=0.7) 
-    plt.scatter(data_x, data_y, c=labels, edgecolors='k', cmap=plt.cm.RdYlBu, s=50) 
+    plt.contourf(xx, yy, Z, cmap=plt.cm.RdYlBu, alpha=0.7) 
+    plt.scatter(x, y, c=labels, edgecolors='k', cmap=plt.cm.RdYlBu, s=50) 
     plt.title("Decision Boundaries")
     plt.xlabel("X")
     plt.ylabel("Y")
     plt.colorbar()
+    plt.show()
 
 
+def accuracy_fn(pred, label):
+    val = torch.eq(pred, label).sum().item()
+    acc = val / len
 
+
+def conv2d_calc(input_dim: int, kernel, stride, padding):
+    output = 1 + (input_dim + (padding * 2) - kernel) / stride
+
+    return output
+
+
+def layer_dim_calc(conv2d_count, maxpool_count, conv2d_kernel, maxpool_kernel, stride, padding):
+    dim =0
+    for epoch in range(0, maxpool_count, 1):
+        for epoch in range(0, conv2d_count, 1):
+            dim = conv2d_calc(dim, conv2d_kernel, stride, padding)
+        dim /= maxpool_kernel
+    return int(dim)
 
